@@ -1,0 +1,230 @@
+-- Servic-- Services
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Remove any previous GUI
+local existingGui = PlayerGui:FindFirstChild("ESP_Aimbot_GUI")
+if existingGui then existingGui:Destroy() end
+
+-- GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ESP_Aimbot_GUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+LocalPlayer.CharacterAdded:Connect(function()
+    if ScreenGui.Parent ~= PlayerGui then
+        ScreenGui.Parent = PlayerGui
+    end
+end)
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Position = UDim2.new(0, 20, 0, 20)
+MainFrame.Size = UDim2.new(0, 300, 0, 110) -- Increased width
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Text = "Made by Greenblaz"
+Title.Size = UDim2.new(1, 0, 0, 20)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+Title.Parent = MainFrame
+
+-- Buttons
+local ESPEnabled = true
+local aimbotEnabled = false
+local flyEnabled = false
+local fopEnabled = false
+local rmbHeld = false
+
+-- ESP Button
+local ESPButton = Instance.new("TextButton")
+ESPButton.Size = UDim2.new(0, 120, 0, 30)
+ESPButton.Position = UDim2.new(0, 10, 0, 30)
+ESPButton.Text = "ESP: ON"
+ESPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ESPButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+ESPButton.Parent = MainFrame
+ESPButton.MouseButton1Click:Connect(function()
+    ESPEnabled = not ESPEnabled
+    ESPButton.Text = "ESP: " .. (ESPEnabled and "ON" or "OFF")
+end)
+
+-- Flying OnePunch Button (under ESP)
+local FOPButton = Instance.new("TextButton")
+FOPButton.Size = UDim2.new(0, 120, 0, 30)
+FOPButton.Position = UDim2.new(0, 10, 0, 70)
+FOPButton.Text = "Flying OnePunch: OFF"
+FOPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+FOPButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+FOPButton.Parent = MainFrame
+FOPButton.MouseButton1Click:Connect(function()
+    fopEnabled = not fopEnabled
+    FOPButton.Text = "Flying OnePunch: " .. (fopEnabled and "ON" or "OFF")
+    if fopEnabled then
+        pcall(function()
+            loadstring(game:HttpGet("https://pastefy.app/59mJGQGe/raw"))()
+        end)
+    end
+end)
+
+-- Fly Button (right column)
+local FlyButton = Instance.new("TextButton")
+FlyButton.Size = UDim2.new(0, 120, 0, 30)
+FlyButton.Position = UDim2.new(0, 150, 0, 30)
+FlyButton.Text = "Fly: OFF"
+FlyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+FlyButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+FlyButton.Parent = MainFrame
+FlyButton.MouseButton1Click:Connect(function()
+    flyEnabled = not flyEnabled
+    FlyButton.Text = "Fly: " .. (flyEnabled and "ON" or "OFF")
+    if flyEnabled then
+        pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
+        end)
+    end
+end)
+
+-- Aimbot Button (under Fly)
+local AimbotButton = Instance.new("TextButton")
+AimbotButton.Size = UDim2.new(0, 120, 0, 30)
+AimbotButton.Position = UDim2.new(0, 150, 0, 70)
+AimbotButton.Text = "Aimbot: OFF"
+AimbotButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AimbotButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+AimbotButton.Parent = MainFrame
+AimbotButton.MouseButton1Click:Connect(function()
+    aimbotEnabled = not aimbotEnabled
+    AimbotButton.Text = "Aimbot: " .. (aimbotEnabled and "ON" or "OFF")
+end)
+
+-- Track RMB
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then rmbHeld = true end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then rmbHeld = false end
+end)
+
+-- --- ESP Logic ---
+local ESP = {}
+local boxColor = Color3.fromRGB(169, 169, 169)
+local textColor = Color3.fromRGB(255, 255, 255)
+local boxTransparency = 0.7
+local nameSize = 16
+local boxThickness = 2
+
+local function createESP(player)
+    local box = Drawing.new("Square")
+    box.Visible = false
+    box.Color = boxColor
+    box.Thickness = boxThickness
+    box.Transparency = boxTransparency
+    box.Filled = false
+
+    local nameTag = Drawing.new("Text")
+    nameTag.Visible = false
+    nameTag.Center = true
+    nameTag.Outline = true
+    nameTag.Color = textColor
+    nameTag.Size = nameSize
+
+    ESP[player] = {Box = box, Name = nameTag}
+end
+
+local function removeESP(player)
+    if ESP[player] then
+        ESP[player].Box:Remove()
+        ESP[player].Name:Remove()
+        ESP[player] = nil
+    end
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then createESP(player) end
+end
+Players.PlayerAdded:Connect(function(player) if player ~= LocalPlayer then createESP(player) end end)
+Players.PlayerRemoving:Connect(removeESP)
+
+local function getTopAndBottom(character)
+    if character:FindFirstChild("HumanoidRootPart") then
+        local head = character:FindFirstChild("Head")
+        local root = character:FindFirstChild("HumanoidRootPart")
+        return head.Position + Vector3.new(0, 0.5, 0), root.Position - Vector3.new(0, 2, 0)
+    else
+        local head = character:FindFirstChild("Head")
+        local torso = character:FindFirstChild("Torso")
+        if head and torso then return head.Position + Vector3.new(0,0.5,0), torso.Position - Vector3.new(0,1,0) end
+    end
+    return nil, nil
+end
+
+-- --- Update Loop ---
+RunService.RenderStepped:Connect(function()
+    local screenCenter = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+
+    -- ESP
+    for player, esp in pairs(ESP) do
+        local char = player.Character
+        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+        if char and humanoid and humanoid.Health > 0 and ESPEnabled then
+            local topPos3D, bottomPos3D = getTopAndBottom(char)
+            if topPos3D and bottomPos3D then
+                local topPos2D, onScreenTop = Camera:WorldToViewportPoint(topPos3D)
+                local bottomPos2D, onScreenBottom = Camera:WorldToViewportPoint(bottomPos3D)
+                if onScreenTop and onScreenBottom then
+                    local width = math.abs(topPos2D.X - bottomPos2D.X) * 1.5
+                    local height = math.abs(topPos2D.Y - bottomPos2D.Y)
+                    esp.Box.Size = Vector2.new(width, height)
+                    esp.Box.Position = Vector2.new(topPos2D.X - width/2, topPos2D.Y)
+                    esp.Box.Visible = true
+                    esp.Name.Text = player.DisplayName
+                    esp.Name.Position = Vector2.new(topPos2D.X, topPos2D.Y - 10)
+                    esp.Name.Visible = true
+                else
+                    esp.Box.Visible = false
+                    esp.Name.Visible = false
+                end
+            end
+        else
+            esp.Box.Visible = false
+            esp.Name.Visible = false
+        end
+    end
+
+    -- Aimbot
+    if aimbotEnabled and rmbHeld then
+        local closest = nil
+        local shortest = math.huge
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character then
+                local head = player.Character:FindFirstChild("Head")
+                if head then
+                    local pos, onScreen = Camera:WorldToViewportPoint(head.Position)
+                    if onScreen then
+                        local dist = (Vector2.new(pos.X, pos.Y) - screenCenter).Magnitude
+                        if dist < shortest then
+                            shortest = dist
+                            closest = player
+                        end
+                    end
+                end
+            end
+        end
+        if closest and closest.Character and closest.Character:FindFirstChild("Head") then
+            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, closest.Character.Head.Position), 0.2)
+        end
+    end
+end)
+
