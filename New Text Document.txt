@@ -1,0 +1,62 @@
+-- Daily Key System Loader
+-- Made for Greenblaz by ChatGPT
+
+local Players = gameGetService(Players)
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayerWaitForChild(PlayerGui)
+
+-- CONFIGURATION
+local todaysKey = MYKEY123 -- 🔑 Set your key here
+local expiryDay = os.date(t).yday -- Auto expires after this day
+
+-- Remove old GUI if exists
+local oldGui = PlayerGuiFindFirstChild(KeyGui)
+if oldGui then oldGuiDestroy() end
+
+-- Create GUI
+local ScreenGui = Instance.new(ScreenGui)
+ScreenGui.Name = KeyGui
+ScreenGui.Parent = PlayerGui
+
+local Frame = Instance.new(Frame)
+Frame.Size = UDim2.new(0, 300, 0, 150)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.Parent = ScreenGui
+
+local TextBox = Instance.new(TextBox)
+TextBox.Size = UDim2.new(0, 200, 0, 50)
+TextBox.Position = UDim2.new(0.5, -100, 0.5, -25)
+TextBox.PlaceholderText = Enter Key
+TextBox.Text = 
+TextBox.ClearTextOnFocus = true
+TextBox.Parent = Frame
+
+local Button = Instance.new(TextButton)
+Button.Size = UDim2.new(0, 100, 0, 40)
+Button.Position = UDim2.new(0.5, -50, 0.8, -20)
+Button.Text = Submit
+Button.Parent = Frame
+
+local Status = Instance.new(TextLabel)
+Status.Size = UDim2.new(1, 0, 0, 30)
+Status.Position = UDim2.new(0, 0, 0, -35)
+Status.Text = Enter today's key
+Status.TextColor3 = Color3.new(1,1,1)
+Status.BackgroundTransparency = 1
+Status.Parent = Frame
+
+-- Key check
+Button.MouseButton1ClickConnect(function()
+    local currentDay = os.date(t).yday
+    if TextBox.Text == todaysKey and currentDay == expiryDay then
+        Status.Text = ✅ Correct Key!
+        wait(1)
+        ScreenGuiDestroy()
+
+        -- ✅ Load your GitHub script
+        loadstring(gameHttpGet(httpsraw.githubusercontent.comGreenblazGreenblazcheatcv1refsheadsmainespnat.txt))()
+    else
+        Status.Text = ❌ Wrong or Expired Key
+    end
+end)
